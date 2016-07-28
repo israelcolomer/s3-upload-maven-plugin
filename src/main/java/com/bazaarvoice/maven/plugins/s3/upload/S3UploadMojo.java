@@ -5,10 +5,13 @@ import com.amazonaws.auth.AWSCredentialsProvider;
 import com.amazonaws.auth.BasicAWSCredentials;
 import com.amazonaws.auth.DefaultAWSCredentialsProviderChain;
 import com.amazonaws.internal.StaticCredentialsProvider;
+import com.amazonaws.regions.Region;
+import com.amazonaws.regions.Regions;
 import com.amazonaws.services.s3.AmazonS3;
 import com.amazonaws.services.s3.AmazonS3Client;
 import com.amazonaws.services.s3.Headers;
 import com.amazonaws.services.s3.model.CannedAccessControlList;
+import com.amazonaws.services.s3.model.CreateBucketRequest;
 import com.amazonaws.services.s3.model.ObjectMetadata;
 import com.amazonaws.services.s3.model.PutObjectRequest;
 import com.amazonaws.services.s3.transfer.ObjectMetadataProvider;
@@ -52,12 +55,20 @@ public class S3UploadMojo extends AbstractMojo
   private String destination;
 
   /** Force override of endpoint for S3 regions such as EU. */
-  @Parameter(property = "s3-upload.endpoint")
+  @Parameter(property = "s3-upload.endpoint", defaultValue = "s3.amazonaws.com")
   private String endpoint;
 
   /** In the case of a directory upload, recursively upload the contents. */
   @Parameter(property = "s3-upload.recursive", defaultValue = "false")
   private boolean recursive;
+
+  /** Instruct that bucket should be created if it does not exist */
+  @Parameter(property = "s3-upload.createBucket", defaultValue = "false")
+  private boolean createBucket;
+
+  /** In the case of a directory upload, recursively upload the contents. */
+  @Parameter(property = "s3-upload.createBucketInRegion", defaultValue = "eu-west-1")
+  private String bucketRegion;
 
   @Override
   public void execute() throws MojoExecutionException
@@ -67,12 +78,16 @@ public class S3UploadMojo extends AbstractMojo
     }
 
     AmazonS3 s3 = getS3Client(accessKey, secretKey);
+    s3.setRegion(Region.getRegion(Regions.EU_WEST_1));
     if (endpoint != null) {
       s3.setEndpoint(endpoint);
     }
 
     if (!s3.doesBucketExist(bucketName)) {
-      throw new MojoExecutionException("Bucket doesn't exist: " + bucketName);
+      if (!createBucket) {
+        throw new MojoExecutionException("Bucket doesn't exist: " + bucketName);
+      }
+      s3.createBucket(new CreateBucketRequest(bucketName, bucketRegion));
     }
 
     if (doNotUpload) {

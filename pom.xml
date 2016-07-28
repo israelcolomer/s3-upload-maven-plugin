@@ -8,7 +8,7 @@
   </parent>
 
   <groupId>com.bazaarvoice.maven.plugins</groupId>
-  <artifactId>s3-upload-maven-plugin</artifactId>
+  <artifactId>s3-upload-maven-plugin-sf</artifactId>
   <version>1.5-SNAPSHOT</version>
   <packaging>maven-plugin</packaging>
 
@@ -22,8 +22,8 @@
   </scm>
 
   <properties>
-    <maven.compiler.source>1.6</maven.compiler.source>
-    <maven.compiler.target>1.6</maven.compiler.target>
+    <maven.compiler.source>1.8</maven.compiler.source>
+    <maven.compiler.target>1.8</maven.compiler.target>
     <encoding>UTF-8</encoding>
   </properties>
 
@@ -36,8 +36,8 @@
         <configuration>
           <signature>
             <groupId>org.codehaus.mojo.signature</groupId>
-            <artifactId>java16</artifactId>
-            <version>1.1</version>
+            <artifactId>java18</artifactId>
+            <version>1.0</version>
           </signature>
         </configuration>
         <executions>
@@ -83,6 +83,16 @@
           <autoReleaseAfterClose>true</autoReleaseAfterClose>
         </configuration>
       </plugin>
+        <plugin>
+          <groupId>org.apache.maven.plugins</groupId>
+          <artifactId>maven-compiler-plugin</artifactId>
+          <version>3.5.1</version>
+          <configuration>
+            <!-- or whatever version you use -->
+            <source>1.8</source>
+            <target>1.8</target>
+          </configuration>
+        </plugin>
     </plugins>
   </build>
 
